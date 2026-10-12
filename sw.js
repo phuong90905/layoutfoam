@@ -1,5 +1,5 @@
 /* Layout Xe PWA: chỉ cache giao diện, tuyệt đối không cache API/dữ liệu người dùng. */
-const CACHE_NAME = 'layout-xe-pwa-shell-v14-hotfix1';
+const CACHE_NAME = 'layout-xe-pwa-shell-v15-hotfix1';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png'];
 self.addEventListener('install', event => {
