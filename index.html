@@ -1286,7 +1286,27 @@ function saveSiteNotice() {
     if (bootstrap && Date.now() - bootstrapAt < TTL) return Promise.resolve(bootstrap);
     if (bootstrapPromise) return bootstrapPromise;
     const version = epoch;
-    const pending = request('getAppBootstrap', []).then(data => {
+    const pending = request('getAppBootstrap', []).catch(async error => {
+      // Tương thích với API cũ chưa thêm getAppBootstrap.
+      // Chỉ fallback khi máy chủ báo hành động không được hỗ trợ.
+      const message = String(error && error.message || error);
+      if (!/Yêu cầu không hợp lệ|Thao tác không được hỗ trợ|chưa hỗ trợ|getAppBootstrap/i.test(message)) {
+        throw error;
+      }
+      console.warn('API chưa hỗ trợ getAppBootstrap; tạm dùng bốn API đọc cũ.', message);
+      const [layout, vehicles, notes, notice] = await Promise.all([
+        request('getLayoutData', []),
+        request('getVehicleList', []),
+        request('getVehicleNotes', []),
+        request('getSiteNotice', [])
+      ]);
+      return {
+        getLayoutData: layout,
+        getVehicleList: vehicles,
+        getVehicleNotes: notes,
+        getSiteNotice: notice
+      };
+    }).then(data => {
       if (version === epoch) {
         bootstrap = data || {};
         bootstrapAt = Date.now();
